@@ -1,22 +1,22 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
 import ArrowPathIcon from "@heroicons/react/24/outline/ArrowPathIcon";
-
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 import { getDataPieChart, options } from "../../../utils";
 import { IDataChart } from "../../../interfaces/data.chart.interface";
-import { useGetSales } from "../../../hooks/sales.hook";
+import { useGetSalesByStoreName } from "../../../hooks/sales.hook";
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface Props {
-  tiendaId: number;
+  tienda: string;
 }
 
-export default function Pies({ tiendaId }: Props) {
-  const { sales, isLoading, error } = useGetSales(tiendaId);
+function SimilaryPieCharts({tienda}: Props) {
+  const { sales, isLoading, error } = useGetSalesByStoreName(tienda);
 
   const [data, setData] = useState<IDataChart>({ labels: [], datasets: [] });
 
@@ -44,7 +44,7 @@ export default function Pies({ tiendaId }: Props) {
   } else if (error) {
     return <>Error al recuperar los datos</>;
   }
-  // console.log(sales)
+  console.log(sales)
 
   const categorias = () => {
     const categorias = sales!.filter((dato, index, arr) => {
@@ -128,82 +128,82 @@ export default function Pies({ tiendaId }: Props) {
     setStartDate(undefined);
     setEndDate(undefined);
   };
-
   return (
     <>
-      {/* <h3 className="text-xl font-medium">Productos</h3> */}
-      <div className="mb-6">
-        <ul className="menu menu-vertical lg:menu-horizontal rounded-box gap-2">
-          <li>
-            <button onClick={cleanFilter} className="bg-base-200">
-              <ArrowPathIcon className="w-5 h-5" />
-            </button>
-          </li>
-          <li>
-            <select
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                setSelectCategoria(parseInt(event.target.value))
-              }
-              // className="select select-bordered w-full max-w-xs"
-              defaultValue={0}
-            >
-              <option value="0">Seleccionar Categoria</option>
-              <option value="0">Todas</option>
-              {categorias().map((dato, index) => (
-                <option key={index} value={dato.categoria_id}>
-                  {dato.categoria}
-                </option>
-              ))}
-            </select>
-          </li>
-          <li>
-            <select
-              onChange={(event: ChangeEvent<HTMLSelectElement>) =>
-                setSelectRubro(parseInt(event.target.value))
-              }
-              defaultValue={0}
-            >
-              <option value="0">Seleccionar Rubro</option>
-              <option value="0">Todas</option>
-              {rubros().map((dato, index) => (
-                <option key={index} value={dato.rubro_id}>
-                  {dato.rubro}
-                </option>
-              ))}
-            </select>
-          </li>
-          <li>
-            <input
-              onChange={(e) => {
-                setStartDate(new Date(`${e.target.value}T00:00`));
-              }}
-              type="date"
-              title="Fecha de inicio"
-              className="bg-base-200"
-            />
-          </li>
-          <li>
-            <input
-              onChange={(e) => {
-                setEndDate(new Date(`${e.target.value}T23:59`));
-              }}
-              type="date"
-              title="Fecha de fin"
-              className="bg-base-200"
-            />
-          </li>
-        </ul>
-      </div>
-      <div className="h-[30rem] w-full">
-        {data.labels.length != 0 ? (
-          <Pie data={dataFilter()} options={options} />
-        ) : (
-          <div>Hola mundo</div>
-        )}{" "}
-      </div>
-      <div className="flex justify-center mt-6">
-        <h2 className="font-medium">Total Venta: $ {totalVentas()}</h2>
-      </div>
-    </>
-  );
+    {/* <h3 className="text-xl font-medium">Productos</h3> */}
+    <div className="">
+      <ul className="menu menu-vertical lg:menu-horizontal rounded-box gap-2">
+        <li>
+          <button onClick={cleanFilter} className="bg-base-200">
+            <ArrowPathIcon className="w-5 h-5" />
+          </button>
+        </li>
+        <li>
+          <select
+            onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+              setSelectCategoria(parseInt(event.target.value))
+            }
+            // className="select select-bordered w-full max-w-xs"
+            defaultValue={0}
+          >
+            <option value="0">Seleccionar Categoria</option>
+            <option value="0">Todas</option>
+            {categorias().map((dato, index) => (
+              <option key={index} value={dato.categoria_id}>
+                {dato.categoria}
+              </option>
+            ))}
+          </select>
+        </li>
+        <li>
+          <select
+            onChange={(event: ChangeEvent<HTMLSelectElement>) =>
+              setSelectRubro(parseInt(event.target.value))
+            }
+            defaultValue={0}
+          >
+            <option value="0">Seleccionar Rubro</option>
+            <option value="0">Todas</option>
+            {rubros().map((dato, index) => (
+              <option key={index} value={dato.rubro_id}>
+                {dato.rubro}
+              </option>
+            ))}
+          </select>
+        </li>
+        <li>
+          <input
+            onChange={(e) => {
+              setStartDate(new Date(`${e.target.value}T00:00`));
+            }}
+            type="date"
+            title="Fecha de inicio"
+            className="bg-base-200"
+          />
+        </li>
+        <li>
+          <input
+            onChange={(e) => {
+              setEndDate(new Date(`${e.target.value}T23:59`));
+            }}
+            type="date"
+            title="Fecha de fin"
+            className="bg-base-200"
+          />
+        </li>
+      </ul>
+    </div>
+    <div className="h-[30rem] w-full">
+      {data.labels.length != 0 ? (
+        <Pie data={dataFilter()} options={options} />
+      ) : (
+        <div>Hola mundo</div>
+      )}{" "}
+    </div>
+    <div className="flex justify-center mt-6">
+      <h2 className="font-medium">Total Venta: $ {totalVentas()}</h2>
+    </div>
+  </>
+  )
 }
+export default SimilaryPieCharts

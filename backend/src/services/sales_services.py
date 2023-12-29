@@ -2,6 +2,8 @@
 import json
 from sqlalchemy import select, text
 import pandas as pd
+import numpy as np
+
 from sklearn.metrics.pairwise import cosine_similarity
 
 from src.database.connection import engine
@@ -11,7 +13,7 @@ from src.models.results import Result
 class SalesService:
 
 
-    def getStores(self):
+    def get_stores(self):
         with engine.connect() as connection:
             query = connection.execute(text("SELECT DISTINCT tienda_id, tienda FROM tabla_resultados"))
             
@@ -21,9 +23,63 @@ class SalesService:
             unique_stores = [{"tienda_id": row[0], "tienda": row[1]} for row in rows]
             
             return unique_stores
+         
+
+    def calculate_total_sales(self, tienda_id: int):
+        resultados_to_query = select(Result).where(Result.tienda_id == tienda_id)
+        df = pd.read_sql(resultados_to_query, con=engine)
+
+        ventas_totales = df['total_venta'].sum()
+
+        return {'total_sales': int(ventas_totales)}
+    
+
+    def calculate_average_profitability(self, tienda_id):
+        resultados_to_query = select(Result).where(Result.tienda_id == tienda_id)
+        df = pd.read_sql(resultados_to_query, con=engine)
+
+        # Manejo de NaN e infinitos
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df.dropna(inplace=True)
+
+        # Calcular el precio original y la rentabilidad
+        df['precio_original'] = np.where(df['descuento_venta'] != 1, df['precio_venta'] / (1 - df['descuento_venta']), 0)
+        df['rentabilidad'] = df['precio_venta'] - df['precio_original']
+
+        # Manejo de infinitos y NaN después de los nuevos cálculos
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df.dropna(inplace=True)
+
+        rentabilidad_promedio = round(df['rentabilidad'].mean(), 2)
+
+        return {'average_profitability': rentabilidad_promedio }
 
 
-    def getSale(self, tienda_id: int):
+    def calculate_average_sales_per_day(self, tienda_id):
+        resultados_to_query = select(Result).where(Result.tienda_id == tienda_id)
+        df = pd.read_sql(resultados_to_query, con=engine)
+
+        df['fecha_venta'] = pd.to_datetime(df['fecha_venta'])
+
+        # Calcular promedio de ventas por día
+        promedio_ventas_por_dia = df['cantidad_venta'].mean()
+
+        promedio_ventas_por_dia = round(float(promedio_ventas_por_dia), 2)
+
+        return {"average_sales_per_day": promedio_ventas_por_dia }
+
+
+    def rubro_con_mayor_volumen_ventas(self, tienda_id):
+        resultados_to_query = select(Result).where(Result.tienda_id == tienda_id)
+        df = pd.read_sql(resultados_to_query, con=engine)
+
+        rubro_mas_vendido = df.groupby('rubro')['cantidad_venta'].sum().idxmax()
+
+        return {'rubro_mas_vendido': rubro_mas_vendido}
+
+
+
+    def get_sales(self, tienda_id: int):
         resultadosToQuery = select(Result).where(Result.tienda_id == tienda_id)
 
         df = pd.read_sql(resultadosToQuery, con=engine)
@@ -36,25 +92,8 @@ class SalesService:
 
         return tiendasDict
             
-
-    def getSales(self):
-        with engine.connect() as connection:
-            print(connection)
-            query = connection.execute(text("SELECT * FROM tabla_resultados WHERE tienda_id=10000"))
-
-             # keys() para obtener los nombres de las columnas
-            column_names = query.keys()
-            
-            # fetchall() para obtener todas las filas
-            rows = query.fetchall()
-
-            # Construye una lista de diccionarios con los resultados
-            result = [dict(zip(column_names, row)) for row in rows]
-
-            return { "sales": result }
-
     
-    def getSimilary(_, tienda_id):
+    def get_similary(_, tienda_id):
         resultadosToQuery = select(Result)
 
         df = pd.read_sql(resultadosToQuery, con=engine)
@@ -72,7 +111,6 @@ class SalesService:
                 cosine_similarity( store_items_matrix)
             )
 
-
         store_sim_matrix['tienda_id'] = store_items_matrix.index
         store_sim_matrix = store_sim_matrix.set_index('tienda_id')
         store_sim_matrix.columns = store_items_matrix.index
@@ -80,7 +118,6 @@ class SalesService:
         store_a = int(tienda_id)
 
         similitudes = store_sim_matrix.loc[store_a].sort_values(ascending=False)
-        # return 'all ight'
         similitudes = pd.DataFrame(similitudes)
 
         #resetear el index
@@ -98,13 +135,28 @@ class SalesService:
         similares = similares.sort_values('tiendas', ascending=True)
         tiendas_name = tiendas_names.sort_values('tienda_id', ascending=True)
 
-        store_b = int(similares[similares.similitud < 0.99999].max()['tiendas'])
+        # store_b = int(similares[similares.similitud < 0.99999].max()['tiendas'])
+        # store_b = int(similares.loc[similares.similitud.idxmax(), 'tiendas'])
+        # obtiene el segundo valor mas alto de la columna similitud (tienda que tiene mas similitud)
+        store_b = int(similares.loc[similares.similitud.nlargest(2).index[-1], 'tiendas'])
+
+        print(store_b)
 
         similares['tiendas'] = tiendas_name['tienda'].tolist()
 
         similares = similares.set_index('tiendas')
+        # top 6 tiendas mas similares
+        similares = similares.nlargest(6, 'similitud') 
+
+        max_similitud_index = similares['similitud'].idxmax()
+        # eliminar la tienda mas valor de similitud que seria la tienda que le pase por parametro
+        # tiene un puntaje de 1.0 o mas
+        similares = similares.drop(max_similitud_index)
+
+        print(similares)
 
         # obtener items comprados por clientes
+        #  to_numpy().nonzero() para obviar los elementos nulos
         items_bouth_in_a = set(store_items_matrix.loc[store_a].iloc[
             store_items_matrix.loc[store_a].to_numpy().nonzero()
             ].index)
@@ -114,16 +166,31 @@ class SalesService:
             ].index)
 
 
-        items_to_recommend_to_B = items_bouth_in_a - items_bouth_in_b
+        # items_to_recommend_to_B = items_bouth_in_a - items_bouth_in_b
+        items_to_recommend_to_A = items_bouth_in_b - items_bouth_in_a
 
         resultado = df.loc[
-            df['sku_id'].isin(items_to_recommend_to_B),
+            df['sku_id'].isin(items_to_recommend_to_A),
             ['sku_nom']
-            ].drop_duplicates().reset_index(drop=True)
-
+            ].drop_duplicates().reset_index(drop=True).head(10)
+        
         resultado.rename(columns={ resultado.columns[0]: 'producto'}, inplace = True)
 
-        response = json.dumps([similares.to_dict(), resultado.to_dict()], ensure_ascii=False)
-        responseDict = json.loads(response)
-        
-        return responseDict
+        # response = json.dumps([similares.to_dict(), resultado.to_dict()], ensure_ascii=False)
+        # responseDict = json.loads(response)
+
+        response = [similares.to_dict(), resultado.to_dict()]
+
+        return response
+
+
+    def get_sales_by_store_name(self, tienda: str):
+        resultadosToQuery = select(Result).where(Result.tienda == tienda)
+
+        df = pd.read_sql(resultadosToQuery, con=engine)
+
+        tiendasJson = df.to_json(orient='records', force_ascii=False)
+
+        tiendasDict = json.loads(tiendasJson)
+
+        return tiendasDict

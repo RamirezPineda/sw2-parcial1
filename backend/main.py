@@ -28,23 +28,39 @@ controller = SaleController()
 def read_root():
     return {"Hello": "World"}
 
+
 @app.get('/stores')
 def get_sales():
-    return controller.getStores()
+    return controller.get_stores()
+
+@app.get('/total-sales/{store_id}')
+def get_total_sales(store_id: int):
+    return controller.calculate_total_sales(store_id)
+
+@app.get('/average-profitability/{store_id}')
+def get_average_profitability(store_id: int):
+    return controller.calculate_average_profitability(store_id)
+
+@app.get('/average-sales-per-day/{store_id}')
+def get_average_sales_per_day(store_id: int):
+    return controller.calculate_average_sales_per_day(store_id)
+
+@app.get('/rubro-con-mayor-volumen-ventas/{store_id}')
+def get_rubro_con_mayor_volumen_ventas(store_id: int):
+    return controller.rubro_con_mayor_volumen_ventas(store_id)
+
 
 @app.get('/sales/{store_id}')
 def get_sale(store_id: int):
-    return controller.getSale(store_id)
+    return controller.get_sales(store_id)
 
-@app.get('/sales')
-def get_sales():
-    # return {"hola" : "golaaaaa" }
-    return controller.getSales()
     
-@app.get('/similary{store_id}')
-def get_properties(store_id: str):
-    return controller.getSimilary(store_id)
+@app.get('/similary/{store_id}')
+def get_similary(store_id: str):
+    return controller.get_similary(store_id)
 
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[str, None] = None):
-#     return {"item_id": item_id, "q": q}
+
+@app.get('/sales-store-similary/{store}')
+def get_sales_by_store_name(store: str):
+    return controller.get_sales_by_store_name(store)
+

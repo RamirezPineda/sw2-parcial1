@@ -20,11 +20,11 @@ function Sidebar() {
         <li className="mb-2 font-semibold text-xl">
           <Link to={"/"}>
             <img
-              className="mask mask-squircle w-12 bg-cover"
+              className="mask w-12 bg-cover"
               src={reactLogo}
               alt="Data Sciencie Logo"
             />
-            MiTienda
+            DataScience
           </Link>{" "}
         </li>
         <li className="">

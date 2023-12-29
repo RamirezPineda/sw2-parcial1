@@ -1,9 +1,8 @@
 import { IData } from "../interfaces";
 
-import type { ChartOptions } from 'chart.js';
+import type { ChartOptions } from "chart.js";
 
-
-export const options: ChartOptions<'pie'> = {
+export const options: ChartOptions<"pie"> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -22,8 +21,8 @@ export const options: ChartOptions<'pie'> = {
 };
 
 const backgroundColor: string[] = [
-  "rgba(255, 99, 132, 0.9)",
   "rgba(53, 162, 235, 0.9)",
+  "rgba(255, 99, 132, 0.9)",
   "rgba(255, 206, 86, 0.9)",
   "rgba(75, 192, 192, 0.9)",
   "rgba(255, 159, 64, 0.9)",
@@ -38,10 +37,10 @@ const backgroundColor: string[] = [
   "rgba(0, 0, 205, 0.9)",
   "rgba(255, 215, 0, 0.9)",
   "rgba(139, 69, 19, 0.9)",
-  "rgba(120, 120, 120, 0.9)", 
-  "rgba(180, 105, 255, 0.9)", 
-  "rgba(0, 255, 196, 0.9)",  
-  "rgba(205, 92, 92, 0.9)",   
+  "rgba(120, 120, 120, 0.9)",
+  "rgba(180, 105, 255, 0.9)",
+  "rgba(0, 255, 196, 0.9)",
+  "rgba(205, 92, 92, 0.9)",
   "rgba(0, 128, 128, 0.9)",
   "rgba(173, 216, 230, 0.9)",
   "rgba(255, 182, 193, 0.9)",
@@ -61,8 +60,8 @@ const backgroundColor: string[] = [
 ];
 
 const borderColor: string[] = [
-  "rgba(255, 99, 132, 0.9)",
   "rgba(53, 162, 235, 0.9)",
+  "rgba(255, 99, 132, 0.9)",
   "rgba(255, 206, 86, 0.9)",
   "rgba(75, 192, 192, 0.9)",
   "rgba(255, 159, 64, 0.9)",
@@ -77,10 +76,10 @@ const borderColor: string[] = [
   "rgba(0, 0, 205, 0.9)",
   "rgba(255, 215, 0, 0.9)",
   "rgba(139, 69, 19, 0.9)",
-  "rgba(120, 120, 120, 0.9)", 
-  "rgba(180, 105, 255, 0.9)", 
-  "rgba(0, 255, 196, 0.9)",  
-  "rgba(205, 92, 92, 0.9)",   
+  "rgba(120, 120, 120, 0.9)",
+  "rgba(180, 105, 255, 0.9)",
+  "rgba(0, 255, 196, 0.9)",
+  "rgba(205, 92, 92, 0.9)",
   "rgba(0, 128, 128, 0.9)",
   "rgba(173, 216, 230, 0.9)",
   "rgba(255, 182, 193, 0.9)",
@@ -102,8 +101,10 @@ const borderColor: string[] = [
 export function getDataPieChart(datos: IData[]) {
   const labels = new Set(datos.map((dato) => dato.producto));
 
+  const labelsArray = [...labels];
+
   const body: number[] = [];
-  
+
   labels.forEach((label) => {
     let total = 0;
     datos.map((dato) => {
@@ -115,11 +116,18 @@ export function getDataPieChart(datos: IData[]) {
     body.push(total);
   });
 
+  const sortedData = labelsArray
+    .map((label, index) => ({ label, total: body[index] }))
+    .sort((a, b) => b.total - a.total);
+
+  const sortedLabels = sortedData.map((data) => data.label);
+  const sortedBody = sortedData.map((data) => data.total);
+
   // const body = datos.map((dato) => dato.cantidad_venta);
   const datasets = [
     {
       label: "Ganancia ($)",
-      data: body,
+      data: sortedBody,
       backgroundColor,
       borderColor,
       borderWidth: 1,
@@ -127,5 +135,5 @@ export function getDataPieChart(datos: IData[]) {
     },
   ];
 
-  return { labels: [...labels], datasets };
+  return { labels: sortedLabels, datasets };
 }

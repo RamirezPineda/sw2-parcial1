@@ -1,7 +1,7 @@
 import Bars3Icon  from '@heroicons/react/24/outline/Bars3Icon'
 // import MoonIcon from '@heroicons/react/24/outline/MoonIcon'
 // import SunIcon from '@heroicons/react/24/outline/SunIcon'
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 function Header() {
   return (
@@ -42,7 +42,7 @@ function Header() {
           </label> */}
 
           {/* Profile icon, opening menu on click */}
-          <div className="dropdown dropdown-end ml-4">
+          {/* <div className="dropdown dropdown-end ml-4">
             <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
               <div className="w-10 rounded-full">
                 <img src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="profile" />
@@ -56,16 +56,16 @@ function Header() {
                 <Link to={"/app/settings-profile"}>
                   Profile Settings
                 </Link>
-              </li>
-              {/* <li className="">
+              </li> 
+              <li className="">
                 <Link to={"/app/settings-billing"}>Bill History</Link>
-              </li> */}
-              <div className="divider mt-0 mb-0"></div>
+              </li> 
+               <div className="divider mt-0 mb-0"></div>
               <li>
                 <a href='' >Logout</a>
               </li>
             </ul>
-          </div>
+          </div> */}
         </div>
       </div>
     </>
