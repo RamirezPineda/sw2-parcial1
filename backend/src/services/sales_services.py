@@ -92,6 +92,31 @@ class SalesService:
 
         return tiendasDict
             
+
+    def get_rentability_product(self, tienda_id):
+        resultados_to_query = select(Result).where(Result.tienda_id == tienda_id)
+        df = pd.read_sql(resultados_to_query, con=engine)
+
+        # Manejo de NaN e infinitos
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df.dropna(inplace=True)
+
+        # Calcular el precio original y la rentabilidad
+        df['precio_original'] = np.where(df['descuento_venta'] != 1, df['precio_venta'] / (1 - df['descuento_venta']), 0)
+        df['rentabilidad'] = df['precio_venta'] - df['precio_original']
+
+        # Manejo de infinitos y NaN después de los nuevos cálculos
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df.dropna(inplace=True)
+
+        # Agrupa por producto y calcula la rentabilidad promedio por producto
+        rentabilidad_por_producto = df.groupby('producto')['rentabilidad'].mean().sort_values()
+
+        result_dict =  rentabilidad_por_producto.to_dict()
+
+        return result_dict
+
+
     
     def get_similary(_, tienda_id):
         resultadosToQuery = select(Result)

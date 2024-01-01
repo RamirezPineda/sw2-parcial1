@@ -54,6 +54,11 @@ def get_rubro_con_mayor_volumen_ventas(store_id: int):
 def get_sale(store_id: int):
     return controller.get_sales(store_id)
 
+
+@app.get('/rentability-product/{store_id}')
+def get_rentability_product(store_id: int):
+    return controller.get_rentability_product(store_id)
+
     
 @app.get('/similary/{store_id}')
 def get_similary(store_id: str):

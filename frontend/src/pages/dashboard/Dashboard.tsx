@@ -10,7 +10,7 @@ import TitleCard from "../../components/cards/TitleCard";
 
 import SimilarStore from "./components/SimilarStore";
 import Cards from "./components/Cards";
-
+// import ProductPieCharts from "./components/ProductPieCharts";
 
 function Dashboard() {
   const { stores, isLoading, error } = useGetAllStores();
@@ -55,15 +55,26 @@ function Dashboard() {
         <Cards tiendaId={tiendaSelect} />
       </div>
 
-      <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
-        {/* <LineChart /> */}
+      {/* <div className="grid lg:grid-cols-2 mt-4 grid-cols-1 gap-6">
+      </div> */}
+
+      <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
         <TitleCard title="Ventas A Lo Largo Del Tiempo">
           <LinesChart tiendaId={tiendaSelect} />
         </TitleCard>
+      d</div>
+
+      <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
         <TitleCard title="Ventas Por Hora">
           <BarsChart tiendaId={tiendaSelect} />
         </TitleCard>
       </div>
+
+      {/* <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
+        <TitleCard title="Rentabilidad De Productos">
+          <ProductPieCharts tiendaId={tiendaSelect} />
+        </TitleCard>
+      </div> */}
 
       <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
         <TitleCard title="Productos Mas Vendidos">

@@ -2,7 +2,7 @@ import { IData } from "../interfaces";
 
 import type { ChartOptions } from "chart.js";
 
-export const options: ChartOptions<"pie"> = {
+export const optionsProduct: ChartOptions<"doughnut"> = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
@@ -11,7 +11,7 @@ export const options: ChartOptions<"pie"> = {
       position: "left",
       title: {
         display: true,
-        text: "Productos más vendidos",
+        text: "Productos más rentables",
         font: {
           size: 20,
         },
@@ -98,22 +98,25 @@ const borderColor: string[] = [
   "rgba(255, 222, 173, 0.9)",
 ];
 
-export function getDataPieChart(datos: IData[]) {
+
+export function getDataProductPieChart(datos: IData[]) {
   const labels = new Set(datos.map((dato) => dato.producto));
 
   const labelsArray = [...labels];
 
   const body: number[] = [];
 
-  labels.forEach((label) => {
-    let total = 0;
-    datos.map((dato) => {
-      if (dato.producto == label) {
-        // total += dato.cantidad_venta;
-        total += dato.total_venta;
-      }
-    });
-    body.push(total);
+  labelsArray.forEach((producto) => {
+    const datosProducto = datos.filter((dato) => dato.producto === producto);
+
+    // rentabilidad sumando las rentabilidades de todos los datos del producto
+    const rentabilidadProducto = datosProducto.reduce((total, dato) => {
+      // const precioOriginal = dato.precio_venta - (dato.precio_venta * (dato.descuento_venta * 100) );
+      const rentabilidad = ((dato.precio_venta - dato.precio_inventario) / dato.precio_venta ) * 100;
+      return total + rentabilidad;
+    }, 0);
+
+    body.push(rentabilidadProducto);
   });
 
   const sortedData = labelsArray
@@ -126,7 +129,7 @@ export function getDataPieChart(datos: IData[]) {
   // const body = datos.map((dato) => dato.cantidad_venta);
   const datasets = [
     {
-      label: "Ganancia total (Bs)",
+      label: "Ganancia por cada producto vendido (Bs)",
       data: sortedBody,
       backgroundColor,
       borderColor,

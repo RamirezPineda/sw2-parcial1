@@ -26,6 +26,10 @@ class SaleController:
     def get_sales(self, store_id: int):
         return self.service.get_sales(store_id)
 
+
+    def get_rentability_product(self, store_id: int):
+        return self.service.get_rentability_product(store_id)
+
     def get_similary(self, store_id: int):
         # print('valid')
         return self.service.get_similary(store_id)

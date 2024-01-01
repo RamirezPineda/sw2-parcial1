@@ -201,7 +201,7 @@ function SimilaryPieCharts({tienda}: Props) {
       )}{" "}
     </div>
     <div className="flex justify-center mt-6">
-      <h2 className="font-medium">Total Venta: $ {totalVentas()}</h2>
+      <h2 className="font-medium">Total Venta: {totalVentas()} Bs</h2>
     </div>
   </>
   )

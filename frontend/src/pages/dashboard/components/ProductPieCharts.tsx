@@ -3,9 +3,9 @@ import { ChangeEvent, useEffect, useState } from "react";
 import ArrowPathIcon from "@heroicons/react/24/outline/ArrowPathIcon";
 
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
 
-import { getDataPieChart, options } from "../../../utils";
+import { getDataProductPieChart, optionsProduct } from "../../../utils";
 import { IDataChart } from "../../../interfaces/data.chart.interface";
 import { useGetSales } from "../../../hooks/sales.hook";
 
@@ -15,7 +15,7 @@ interface Props {
   tiendaId: number;
 }
 
-export default function Pies({ tiendaId }: Props) {
+function ProductBarsCharts({ tiendaId }: Props) {
   const { sales, isLoading, error } = useGetSales(tiendaId);
 
   const [data, setData] = useState<IDataChart>({ labels: [], datasets: [] });
@@ -28,7 +28,7 @@ export default function Pies({ tiendaId }: Props) {
   useEffect(() => {
     if (!sales) return;
 
-    const dataChart: IDataChart = getDataPieChart(sales);
+    const dataChart: IDataChart = getDataProductPieChart(sales);
 
     setData(dataChart);
   }, [sales]);
@@ -68,7 +68,7 @@ export default function Pies({ tiendaId }: Props) {
 
   const dataFilter = () => {
     if (selectCategoria == 0 && selectRubro == 0 && (!startDate || !endDate)) {
-      const dataChart = getDataPieChart(sales!);
+      const dataChart = getDataProductPieChart(sales!);
       return dataChart;
     }
 
@@ -89,7 +89,7 @@ export default function Pies({ tiendaId }: Props) {
       return dato;
     });
 
-    const dataChart = getDataPieChart(dataFilter);
+    const dataChart = getDataProductPieChart(dataFilter);
     return dataChart;
   };
 
@@ -128,8 +128,6 @@ export default function Pies({ tiendaId }: Props) {
     setStartDate(undefined);
     setEndDate(undefined);
   };
-
-  console.log(sales)
 
   return (
     <>
@@ -198,7 +196,7 @@ export default function Pies({ tiendaId }: Props) {
       </div>
       <div className="h-[30rem] w-full">
         {data.labels.length != 0 ? (
-          <Pie data={dataFilter()} options={options} />
+          <Doughnut data={dataFilter()} options={optionsProduct} />
         ) : (
           <div>Hola mundo</div>
         )}{" "}
@@ -209,3 +207,4 @@ export default function Pies({ tiendaId }: Props) {
     </>
   );
 }
+export default ProductBarsCharts;

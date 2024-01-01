@@ -12,11 +12,27 @@ export const misOptionsLineChart: ChartOptions<'line'> = {
     },
   },
   scales: {
-    // y : {
-    //     min : 0
-    // },
+    y : {
+      title: {
+        display: true,
+        text: 'Ganancias (Bs)',
+        color: "rgba(53, 162, 235, 0.5)",
+        font: {
+          size: 14,
+        },
+      },
+        // min : 0
+    },
     x: {
       // ticks: { color: "rgb(255, 99, 132)" },
+      title: {
+        display: true,
+        text: 'Fechas',
+        color: "rgba(53, 162, 235, 0.5)",
+        font: {
+          size: 14,
+        },
+      },
     },
   },
   plugins: {

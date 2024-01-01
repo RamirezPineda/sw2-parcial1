@@ -13,7 +13,7 @@ function SimilarStore({ tiendaId }: Props) {
   const [tiendaSelect, setTiendaSelect] = useState<string>("");
 
   if (isLoading) {
-    return <>Calculando tiendas similares....</>;
+    return <h4 className="font-medium text-xl">Calculando tiendas similares....</h4>;
   } else if (error) {
     return <>Error al recuperar los datos</>;
   }
@@ -40,7 +40,7 @@ function SimilarStore({ tiendaId }: Props) {
         <div>
           {tiendaSelect != "" ? (
             <>
-              <TitleCard title="Productos">
+              <TitleCard title="Productos Mas Vendidos">
                 <SimilaryPieCharts tienda={tiendaSelect} />
               </TitleCard>
             </>

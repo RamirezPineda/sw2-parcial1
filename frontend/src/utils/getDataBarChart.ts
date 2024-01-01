@@ -1,5 +1,6 @@
 
 import type { ChartOptions } from 'chart.js';
+import { IData } from '../interfaces/data.interface';
 
 export const misOptionsBarChart: ChartOptions<'bar'> = {
   responsive: true,
@@ -11,12 +12,29 @@ export const misOptionsBarChart: ChartOptions<'bar'> = {
     },
   },
   scales: {
-    // y: {
-    //   min: -25,
-    //   max: 100,
-    // },
+    y: {
+      title: {
+        display: true,
+        text: 'Ganancias (Bs)',
+        color: "rgba(53, 162, 235, 0.5)",
+        font: {
+          size: 14,
+        },
+      },
+      // min: -25,
+      // max: 100,
+    },
     x: {
+      title: {
+        display: true,
+        text: 'Horas',
+        color: "rgba(53, 162, 235, 0.5)",
+        font: {
+          size: 14,
+        },
+      },
       // ticks: { color: "rgba(0, 220, 195)" },
+      
     },
   },
 };
@@ -48,12 +66,12 @@ const borderColor: string[] = [
 ];
 
 
-interface IDato { 
-  fecha_venta: string;
-  total_venta: number;
-}
+// interface IDato { 
+//   fecha_venta: string;
+//   total_venta: number;
+// }
 
-export function getDataBarChart(datos: IDato[]) {
+export function getDataBarChart(datos: IData[]) {
   const labels = [
     "06:00 - 09:00",
     "09:00 - 12:00",
