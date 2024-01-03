@@ -62,7 +62,7 @@ function Dashboard() {
         <TitleCard title="Ventas A Lo Largo Del Tiempo">
           <LinesChart tiendaId={tiendaSelect} />
         </TitleCard>
-      d</div>
+      </div>
 
       <div className="grid lg:grid-cols-1 mt-4 grid-cols-1 gap-6">
         <TitleCard title="Ventas Por Hora">
