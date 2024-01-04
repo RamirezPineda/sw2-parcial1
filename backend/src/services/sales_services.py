@@ -119,17 +119,29 @@ class SalesService:
 
     
     def get_similary(_, tienda_id):
-        resultadosToQuery = select(Result)
+        print('llego aqui')
+        columnas_necesarias = ['tienda_id', 'sku_id', 'cantidad_venta', 'tienda']
+    
+        # Construir la expresión de selección desempaquetando las columnas de la clase Result
+        columnas_seleccion = [getattr(Result, col) for col in columnas_necesarias]
+    
+        # Crear la consulta select
+        resultadosToQuery = select(*columnas_seleccion)
 
-        df = pd.read_sql(resultadosToQuery, con=engine)
-
+        # resultadosToQuery = select(Result)
+        
+        print('llego aqui 2')
+        df = pd.read_sql_query(resultadosToQuery, con=engine)
+        # df = pd.read_sql(resultadosToQuery, con=engine)
+        print('llego aqui3')
         store_items_matrix = df.pivot_table(
             index='tienda_id',
             columns='sku_id',
             values='cantidad_venta',
-            aggfunc='sum'
+            aggfunc='sum',
+            fill_value=0  # Llena los valores NaN con 0
         )
-
+        print('llego aqui 4')
         store_items_matrix = store_items_matrix.applymap(lambda x: 1 if x>0 else 0)
 
         store_sim_matrix = pd.DataFrame(
@@ -163,9 +175,9 @@ class SalesService:
         # store_b = int(similares[similares.similitud < 0.99999].max()['tiendas'])
         # store_b = int(similares.loc[similares.similitud.idxmax(), 'tiendas'])
         # obtiene el segundo valor mas alto de la columna similitud (tienda que tiene mas similitud)
-        store_b = int(similares.loc[similares.similitud.nlargest(2).index[-1], 'tiendas'])
+        # store_b = int(similares.loc[similares.similitud.nlargest(2).index[-1], 'tiendas'])
 
-        print(store_b)
+        # print(store_b)
 
         similares['tiendas'] = tiendas_name['tienda'].tolist()
 
@@ -178,35 +190,41 @@ class SalesService:
         # tiene un puntaje de 1.0 o mas
         similares = similares.drop(max_similitud_index)
 
-        print(similares)
+        # print(similares)
 
         # obtener items comprados por clientes
         #  to_numpy().nonzero() para obviar los elementos nulos
-        items_bouth_in_a = set(store_items_matrix.loc[store_a].iloc[
-            store_items_matrix.loc[store_a].to_numpy().nonzero()
-            ].index)
+        # items_bouth_in_a = set(store_items_matrix.loc[store_a].iloc[
+        #     store_items_matrix.loc[store_a].to_numpy().nonzero()
+        #     ].index)
 
-        items_bouth_in_b = set(store_items_matrix.loc[store_b].iloc[
-            store_items_matrix.loc[store_b].to_numpy().nonzero()
-            ].index)
+        # items_bouth_in_b = set(store_items_matrix.loc[store_b].iloc[
+        #     store_items_matrix.loc[store_b].to_numpy().nonzero()
+        #     ].index)
 
 
         # items_to_recommend_to_B = items_bouth_in_a - items_bouth_in_b
-        items_to_recommend_to_A = items_bouth_in_b - items_bouth_in_a
+        # items_to_recommend_to_A = items_bouth_in_b - items_bouth_in_a
 
-        resultado = df.loc[
-            df['sku_id'].isin(items_to_recommend_to_A),
-            ['sku_nom']
-            ].drop_duplicates().reset_index(drop=True).head(10)
+        # resultado = df.loc[
+        #     df['sku_id'].isin(items_to_recommend_to_A),
+        #     ['sku_nom']
+        #     ].drop_duplicates().reset_index(drop=True).head(10)
         
-        resultado.rename(columns={ resultado.columns[0]: 'producto'}, inplace = True)
+        # resultado.rename(columns={ resultado.columns[0]: 'producto'}, inplace = True)
 
         # response = json.dumps([similares.to_dict(), resultado.to_dict()], ensure_ascii=False)
         # responseDict = json.loads(response)
 
-        response = [similares.to_dict(), resultado.to_dict()]
+        # response = [similares.to_dict(), resultado.to_dict()]
 
-        return response
+        # return response
+
+        del store_items_matrix
+        del store_sim_matrix
+        del df
+
+        return [similares.to_dict()]
 
 
     def get_sales_by_store_name(self, tienda: str):
@@ -219,3 +237,4 @@ class SalesService:
         tiendasDict = json.loads(tiendasJson)
 
         return tiendasDict
+    

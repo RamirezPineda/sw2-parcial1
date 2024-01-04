@@ -4,13 +4,14 @@ from .base import Base
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String
+from sqlalchemy import String, Integer
 
 
 class Result(Base):
     __tablename__ = 'tabla_resultados'
     __table_args__ = {'extend_existing': True}
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     tienda_id: Mapped[int] = mapped_column( primary_key=True )
     tienda: Mapped[str] = mapped_column( String(255), primary_key=True )
     venta_id: Mapped[int] = mapped_column( primary_key=True )
